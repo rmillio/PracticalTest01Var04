@@ -2,8 +2,11 @@ package ro.pub.cs.systems.eim.practicaltest01var04;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.BroadcastReceiver;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -24,6 +27,16 @@ public class PracticalTest01Var04MainActivity extends AppCompatActivity {
 
     TextView label;
 
+    IntentFilter intentFilter;
+
+    BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(android.content.Context context, Intent intent) {
+            String message = intent.getStringExtra(Constants.SERVICE_LOG);
+            Log.d(Constants.TAG, message);
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,6 +52,10 @@ public class PracticalTest01Var04MainActivity extends AppCompatActivity {
         checkBoxGroup = findViewById(R.id.checkBox2);
 
         label = findViewById(R.id.label);
+
+        intentFilter = new IntentFilter();
+        intentFilter.addAction(Constants.action1);
+        intentFilter.addAction(Constants.action2);
 
         displayBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -60,6 +77,8 @@ public class PracticalTest01Var04MainActivity extends AppCompatActivity {
                     text += " " + group.getText().toString();
                 }
                 label.setText(text);
+
+                startMyService();
             }
         });
 
@@ -70,6 +89,20 @@ public class PracticalTest01Var04MainActivity extends AppCompatActivity {
             intent.putExtra("group", group.getText().toString());
             startActivityForResult(intent, 1);
         });
+    }
+
+    private void startMyService() {
+        Intent intent = new Intent(getApplicationContext(), PracticalTest01Var04Service.class);
+        intent.putExtra("name", name.getText().toString());
+        intent.putExtra("group", group.getText().toString());
+        getApplicationContext().startService(intent);
+    }
+
+    @Override
+    protected void onDestroy() {
+        Intent intent = new Intent(getApplicationContext(), PracticalTest01Var04Service.class);
+        getApplicationContext().stopService(intent);
+        super.onDestroy();
     }
 
     @Override
@@ -102,6 +135,18 @@ public class PracticalTest01Var04MainActivity extends AppCompatActivity {
         if (savedInstanceState.containsKey("groupChecked")) {
             checkBoxGroup.setChecked(savedInstanceState.getBoolean("groupChecked"));
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        registerReceiver(broadcastReceiver, intentFilter);
+    }
+
+    @Override
+    protected void onPause() {
+        unregisterReceiver(broadcastReceiver);
+        super.onPause();
     }
 
     @Override
