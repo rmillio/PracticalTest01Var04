@@ -1,5 +1,6 @@
 package ro.pub.cs.systems.eim.practicaltest01var04;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.BroadcastReceiver;
@@ -106,7 +107,7 @@ public class PracticalTest01Var04MainActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onSaveInstanceState(Bundle savedInstanceState) {
+    protected void onSaveInstanceState(@NonNull Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
         savedInstanceState.putString("name", name.getText().toString());
         savedInstanceState.putString("group", group.getText().toString());
